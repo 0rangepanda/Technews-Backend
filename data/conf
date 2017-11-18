@@ -1,0 +1,4 @@
+STREAM_JAR_PATH  /Users/roger/usr/local/hadoop-2.8.2/share/hadoop/tools/lib/hadoop-streaming-2.8.2.jar
+HADOOP_BIN_PATH  /Users/roger/usr/local/hadoop-2.8.2/bin/hadoop
+LOCAL_RESULT_PATH
+HDFS_PATH
