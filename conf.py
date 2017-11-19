@@ -10,8 +10,8 @@ TECHWORD = CUR_PATH + "/data/techlist"
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = CUR_PATH +"/data/My Project 68452-ae0ad4fc4ab7.json"
 
 # local hadoop path
-STREAM_JAR_PATH = "/Users/roger/usr/local/hadoop-2.8.2/share/hadoop/tools/lib/hadoop-streaming-2.8.2.jar"
-HADOOP_BIN_PATH = "/Users/roger/usr/local/hadoop-2.8.2/bin/hadoop"
+STREAM_JAR_PATH = "/usr/lib/hadoop-mapreduce/hadoop-streaming.jar"
+HADOOP_BIN_PATH = "/usr/bin/hadoop"
 
 # local io path
 MAPPER_PATH  =    CUR_PATH + "/rake" + "/Mapper.py"
@@ -27,5 +27,5 @@ OUTPUT_PATH  = HDFS_PATH+ "/output"
 
 # settings
 DEBUG = True
-SETUP = False
+SETUP = True
 LOG = True
