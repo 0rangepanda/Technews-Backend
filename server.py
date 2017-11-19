@@ -142,7 +142,7 @@ class GetResult(restful.Resource):
     def get(self):
         SessionID = request.args.get('SessionID')
         # TODO: read file from path
-        result_file = conf.RESULT_FOLDER + SessionID + "/result"
+        result_file = conf.RESULT_FOLDER + "/" + SessionID + "/result"
         ret = []
         with open(result_file, 'r') as f:
             for line in f:

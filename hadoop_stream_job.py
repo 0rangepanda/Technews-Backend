@@ -58,7 +58,7 @@ if __name__ == '__main__':
     # Run hadoop stream job
     score = hadoop_stream_job(url_file_path, SessionID)
     # TODO: save result file
-    result_file = conf.RESULT_FOLDER + SessionID + "/result"
+    result_file = conf.RESULT_FOLDER + "/" + SessionID + "/result"
     with open(result_file, 'w') as f:
         for item in score:
-            f.write(itme[0]+','+itme[1])
+            f.write(str(item[0])+','+str(item[1])+'\n')

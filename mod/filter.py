@@ -15,9 +15,9 @@ def cal_score(result_path, tech, topK=10):
 
     # TODO: read all the file under result_path
     files= os.listdir(result_path)
-    for file in files:
-         if not os.path.isdir(file):
-              f = open(path+"/"+file);
+    for _file in files:
+         if not os.path.isdir(_file):
+              f = open(result_path+"/"+_file);
               iter_f = iter(f);
               for line in f:
                   word,score = line.rstrip().split(',', 1)
