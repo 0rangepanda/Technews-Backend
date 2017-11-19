@@ -1,8 +1,4 @@
 #!/usr/bin/python
-"""A Rake Mapper"""
-"""output separate key and value by comma!"""
-
-
 from __future__ import absolute_import
 from __future__ import print_function
 import sys
@@ -86,7 +82,6 @@ class CxExtractor:
                 htmlstr = re_charEntity.sub(CHAR_ENTITIES[key], htmlstr, 1)
                 sz = re_charEntity.search(htmlstr)
             except KeyError:
-                # 以空串代替
                 htmlstr = re_charEntity.sub('', htmlstr, 1)
                 sz = re_charEntity.search(htmlstr)
         return htmlstr
@@ -385,8 +380,8 @@ def read_input(file):
 
 
 def main(separator=','):
-    cx = extractor()
-    rake_object = rake.Rake(2, 3, 1)
+    cx = CxExtractor()
+    rake_object = Rake(2, 3, 1)
 
     # input comes from STDIN (standard input)
     url_list = read_input(sys.stdin)
@@ -400,7 +395,7 @@ def main(separator=','):
             keywords = rake_object.run(content)
             for keyword,score in keywords[:20]:
                 try:
-                    print '%s%s%d' % (keyword, separator, score)
+                    print ("%s%s%d" % (keyword, separator, score, ))
                 except Exception as e:
                     pass
 

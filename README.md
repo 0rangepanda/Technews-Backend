@@ -3,6 +3,9 @@ Note:
   -> In folder data, run: pip freeze > requirements.txt
 
 To set up project:
+  install git and nginx:
+    sudo yum install git
+    sudo yum install nginx
   create python virtual environment:
     sudo pip install virtualenv
     virtualenv -p python2.7 project (make sure use version 2.7)

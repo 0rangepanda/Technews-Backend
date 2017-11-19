@@ -1,7 +1,4 @@
 #!/usr/bin/python
-"""A Rake Reducer"""
-
-
 from __future__ import absolute_import
 from __future__ import print_function
 import sys
@@ -258,7 +255,7 @@ def read_mapper_output(file, separator='\t'):
 def main(separator=','):
     # input comes from STDIN (standard input)
     data = read_mapper_output(sys.stdin, separator=separator)
-    rake_object = rake.Rake(2, 3, 1)
+    rake_object = Rake(2, 3, 1)
 
     wordlist = []
     for current_word, group in groupby(data, itemgetter(0)):
@@ -269,7 +266,7 @@ def main(separator=','):
 
     wordlist_sort = sorted(wordlist, key=lambda a:a[1], reverse=True)
     for word, score in wordlist_sort[:1000]:
-        print "%s%s%d" % (word, separator, score)
+        print ("%s%s%d" % (word, separator, score, ))
 
 
 
