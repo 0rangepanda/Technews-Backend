@@ -143,7 +143,12 @@ class GetResult(restful.Resource):
         SessionID = request.args.get('SessionID')
         # TODO: read file from path
         result_file = conf.RESULT_FOLDER + SessionID + "/result"
-        return result_file
+        ret = []
+        with open(result_file, 'r') as f:
+            for line in f:
+                word,score = line.rstrip().split(',', 1)
+                ret.append([word,score])
+        return ret
 
 api.add_resource(GetResult, '/result')
 
@@ -152,6 +157,8 @@ api.add_resource(GetResult, '/result')
 class CleanUp(restful.Resource):
     def get(self):
         #e.g.: http://127.0.0.1:5000/test
+        run_cmd(['sudo', 'rm', '-rf', conf.INPUT_PATH+ '/*'])
+        run_cmd(['sudo', 'rm', '-rf', conf.OUTPUT_PATH+'/*'])
         return {"Hello":"World"}
 
 api.add_resource(CleanUp, '/cleanup')

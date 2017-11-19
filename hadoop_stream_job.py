@@ -40,13 +40,13 @@ def hadoop_stream_job(url_file, SessionID):
     run_cmd(['rm','-rf',"Mapper.py"])
     run_cmd(['rm','-rf',"Reducer.py"])
 
-    score = cal_score(result_path+'/part-00000', conf.TECHWORD, topK=10)
+    score = cal_score(result_path, conf.TECHWORD, topK=10)
     print score
     return score
 
 if __name__ == '__main__':
-    print len(sys.argv)
-    print str(sys.argv)
+    #print len(sys.argv)
+    #print str(sys.argv)
 
     SessionID = sys.argv[1]
     start_time = int(sys.argv[2])
@@ -58,3 +58,7 @@ if __name__ == '__main__':
     # Run hadoop stream job
     score = hadoop_stream_job(url_file_path, SessionID)
     # TODO: save result file
+    result_file = conf.RESULT_FOLDER + SessionID + "/result"
+    with open(result_file, 'w') as f:
+        for item in score:
+            f.write(itme[0]+','+itme[1])
