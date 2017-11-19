@@ -1,7 +1,7 @@
 import os
 
 
-AWS = True
+AWS = False
 
 
 # file path
@@ -29,7 +29,7 @@ RESULT_FOLDER =   CUR_PATH + "/tmp/result"
 
 
 # hdfs io path
-HDFS_PATH    = "/tmp"
+HDFS_PATH    = "/hottech"
 INPUT_PATH   = HDFS_PATH+ "/url_list"
 OUTPUT_PATH  = HDFS_PATH+ "/output"
 
