@@ -18,6 +18,47 @@ To set up project:
   Run server:
     python server.py
 
+  Now you can access it on localhost:5000 via local machine
+
+
+To deploy as a flask web application using gunicorn:
+  Install gunicorn:
+    pip install gunicorn
+  Run app container and save pid:
+    gunicorn server:app -p server.pid -D --timeout 999999 (set timeout big enough)
+    cat server.pid (this will store the pid of gunicorn in case to stop it)
+    kill `cat server.pid`
+
+
+Nginx:
+  stop apache server firstly:
+    sudo apachectl stop
+  Set nginx configure file
+
+  Nginx conf:
+  # Handle requests to exploreflask.com on port 80
+  server {
+          listen 80;
+          server_name localhost;
+
+          # Handle all locations
+          location / {
+                  # Pass the request to Gunicorn
+                  proxy_pass http://127.0.0.1:8000;
+
+                  # Set some HTTP headers so that our app knows where the request really came from
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          }
+  }
+
+  Then start nginx server:
+    sudo nginx
+
+
+
+
 Replacebale files:
   in data folder:
     stopword - the stop word list file, which will be used by rake

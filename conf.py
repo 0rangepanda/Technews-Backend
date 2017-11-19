@@ -20,8 +20,8 @@ else:
     HADOOP_BIN_PATH = "/Users/roger/usr/local/hadoop-2.8.2/bin/hadoop"
 
 # local io path
-MAPPER_PATH  =    CUR_PATH + "/rake" + "/Mapper.py"
-REDUCER_PATH =    CUR_PATH + "/rake" + "/Reducer.py"
+MAPPER_PATH  =    CUR_PATH + "/mapreduce" + "/rake" + "/Mapper.py"
+REDUCER_PATH =    CUR_PATH + "/mapreduce" + "/rake" + "/Reducer.py"
 URL_LIST_FOLDER = CUR_PATH + "/tmp/url_list"
 RESULT_FOLDER =   CUR_PATH + "/tmp/result"
 

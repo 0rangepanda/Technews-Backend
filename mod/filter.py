@@ -12,6 +12,7 @@ def cal_score(result, tech, topK=10):
         for line in f:
             tech_list[line[:-1]] = 0
 
+    # TODO: read all the file under result_path
     with open(result, 'r') as f:
         for line in f:
             word,score = line.rstrip().split(',', 1)

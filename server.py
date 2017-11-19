@@ -2,9 +2,10 @@
 from flask import Flask, request
 from flask.ext import restful
 from flask_cors import CORS
-
+from flask import g
 import os
 import uuid
+import subprocess
 
 # Modules
 from mod.Query import hacker_news_query
@@ -23,6 +24,21 @@ def setup_hadoop(hadoop):
     hadoop.check(conf.OUTPUT_PATH)
     return
 
+
+#------------------------ After request setup -------------------------#
+def after_this_request(func):
+    if not hasattr(g, 'call_after_request'):
+        g.call_after_request = []
+    g.call_after_request.append(func)
+    return func
+
+@app.after_request
+def per_request_callbacks(response):
+    for func in getattr(g, 'call_after_request', ()):
+        response = func(response)
+    return response
+
+
 #------------------------ Test ----------------------------------#
 class Test(restful.Resource):
     def get(self):
@@ -31,6 +47,7 @@ class Test(restful.Resource):
         return {"Hello":"World"}
 
 api.add_resource(Test, '/test')
+
 
 #------------------------ WordCount ----------------------------#
 class WordCount(restful.Resource):
@@ -96,9 +113,48 @@ class WordCount(restful.Resource):
         score = self.hadoop_stream_job(url_file_path, SessionID)
 
         return self.to_json(score)
+        # TODO: return the SessionID, store the result and get result by SessionID
 
 api.add_resource(WordCount, '/wordcount')
 
+#------------------------ Rake -------------------------------#
+@app.route('/rake', methods=['GET'])
+def Rake():
+    @after_this_request
+    def delete_username_cookie(response):
+        SessionID = response.get_data()
+        start_time = request.args.get('start_time')
+        end_time   = request.args.get('end_time')
+        limit = '0'
+        try:
+            limit  = request.args.get('LIMIT')
+        except Exception as e:
+            pass
+        # Run hadoop stream job UNBLOCK!
+        subprocess.Popen(['python','hadoop_stream_job.py',SessionID, start_time, end_time, limit])
+        return response
+
+    SessionID = str(uuid.uuid1())
+    return SessionID
+
+#------------------------ Get Result ----------------------------------#
+class GetResult(restful.Resource):
+    def get(self):
+        SessionID = request.args.get('SessionID')
+        # TODO: read file from path
+        result_file = conf.RESULT_FOLDER + SessionID + "/result"
+        return result_file
+
+api.add_resource(GetResult, '/result')
+
+
+#------------------------ Clean Up ----------------------------------#
+class CleanUp(restful.Resource):
+    def get(self):
+        #e.g.: http://127.0.0.1:5000/test
+        return {"Hello":"World"}
+
+api.add_resource(CleanUp, '/cleanup')
 
 
 
