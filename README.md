@@ -4,9 +4,11 @@ Note:
 
 To set up project:
   create python virtual environment:
-    virtualenv project
+    sudo pip install virtualenv
+    virtualenv -p python2.7 project (make sure use version 2.7)
     source bin/activate
   get source code from githab:
+    (If using AWS, install git first: yum install git)
     git clone https://github.com/0rangepanda/Technews-Backend.git
   Install python packages:
     pip install -r requirements.txt

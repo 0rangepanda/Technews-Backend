@@ -26,7 +26,7 @@ def setup_hadoop(hadoop):
 #------------------------ Test ----------------------------------#
 class Test(restful.Resource):
     def get(self):
-        run_cmd(['/Users/roger/usr/local/hadoop-2.8.2/bin/hadoop', 'fs', '-ls', '/'])
+        run_cmd([conf.HADOOP_BIN_PATH, 'fs', '-ls', '/'])
         #e.g.: http://127.0.0.1:5000/test
         return {"Hello":"World"}
 
@@ -106,4 +106,4 @@ api.add_resource(WordCount, '/wordcount')
 if __name__ == '__main__':
     if conf.SETUP:
         setup_hadoop(hadoop)
-    app.run(debug=conf.DEBUG, threaded=True)
+    app.run(debug=conf.DEBUG, threaded=True, port=5000)
