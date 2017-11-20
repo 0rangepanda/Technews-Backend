@@ -65,8 +65,11 @@ if __name__ == '__main__':
         with open(result_file, 'w') as f:
             for item in score:
                 f.write(str(item[0])+','+str(item[1])+'\n')
-                
+
     except Exception as e:
-        result_file = conf.RESULT_FOLDER + "/" + SessionID + "/__FAIL__"
+        result_path = conf.RESULT_FOLDER+'/'+SessionID
+        run_cmd(['rm','-rf',result_path])
+        run_cmd(['mkdir',result_path])
+        result_file = result_path + "/__FAIL__"
         with open(result_file, 'w') as f:
             f.write('\n')

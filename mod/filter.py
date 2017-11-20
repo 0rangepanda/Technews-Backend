@@ -3,7 +3,7 @@ import os
 
 def similarity(str1, str2):
     # Short string
-    if len(str1) < 5 or len(str2) < 5:
+    if len(str1) < 4 or len(str2) < 4:
         if str1 == str2:
             return 1
         seq = difflib.SequenceMatcher(None, str1, str2)
