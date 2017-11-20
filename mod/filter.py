@@ -3,17 +3,17 @@ import os
 
 def similarity(str1, str2):
     # Short string
-    if len(str1) < 4 or len(str2) < 4:
+    if len(str1) < 5 or len(str2) < 5:
         if str1 == str2:
             return 1
         seq = difflib.SequenceMatcher(None, str1, str2)
-        return seq.ratio() if seq.ratio() > 0.8 else 0
+        return seq.ratio() if seq.ratio() > 0.7 else 0
     # Normal string
     else:
         if (str1 in str2) or (str2 in str1):
             return 1
         seq = difflib.SequenceMatcher(None, str1, str2)
-        return seq.ratio() if seq.ratio() > 0.5 else 0
+        return seq.ratio() if seq.ratio() > 0.4 else 0
 
 
 def cal_score(result_path, tech, topK=10):
