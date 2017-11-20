@@ -95,9 +95,9 @@ class GetResult(restful.Resource):
             try:
                 result_file = conf.RESULT_FOLDER + "/" + SessionID + "/__FAIL__"
                 if result_file.is_file():
-                    return {"Status" : "Failed"}
+                    return "Failed"
             except Exception as e:
-                return {"Status" : "Uncompleted"}
+                return "Uncompleted"
 
 
 api.add_resource(GetResult, '/result')

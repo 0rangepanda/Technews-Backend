@@ -13,8 +13,8 @@ def similarity(str1, str2):
         if (str1 in str2) or (str2 in str1):
             return 1
         seq = difflib.SequenceMatcher(None, str1, str2)
-        return seq.ratio() if seq.ratio() > 0.6 else 0
-    
+        return seq.ratio() if seq.ratio() > 0.5 else 0
+
 
 def cal_score(result_path, tech, topK=10):
     tech_list = {}

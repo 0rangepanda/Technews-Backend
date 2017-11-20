@@ -381,7 +381,7 @@ def read_input(file):
 
 def main(separator=','):
     cx = CxExtractor()
-    rake_object = Rake(2, 3, 1)
+    rake_object = Rake(3, 4, 3)
 
     # input comes from STDIN (standard input)
     url_list = read_input(sys.stdin)

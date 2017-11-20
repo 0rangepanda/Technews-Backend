@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://code.highcharts.com/stock/highstock.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+  <script>
+    zingchart.MODULESDIR = "https://cdn.zingchart.com/modules/";
+    ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "ee6b7db5b51705a13dc2339db3edaf6d"];
+  </script>
+  <style type="text/css">
+    body {
+      background-image: url(https://s3-us-west-1.amazonaws.com/hotnewsrecommend/wallhaven-12860.jpg);
+    }
+  </style>
+  <script>
+    function onSuccess(backdata, status) {
+      if (backdata != "Uncompleted"){
+      var Charcate = new Array();
+      var CharY = new Array();
+      var titleSub = 'Top ' + document.getElementById('NumTop').value;
+      var period = 'From ' + document.getElementById('start').value + ' to ' + document.getElementById('end').value;
+      for (var key in backdata) {
+        Charcate[key] = backdata[key].word;
+        CharY[key] = backdata[key].score;
+      }
+      var chart = {
+        borderColor: '#EBBA95',
+        borderWidth: 2,
+        backgroundColor: 'rgba(255,255,255,0.4)',
+        type: 'bar'
+      };
+      var title = {
+        text: 'Hot Words in Tech News',
+        style: {
+          color: 'black'
+        }
+      };
+      var subtitle = {
+        text: titleSub,
+        style: {
+          color: 'black'
+        }
+      };
+      var xAxis = {
+        categories: Charcate,
+        labels: {
+          style: {
+            color: 'black'
+          }
+        }
+      };
+      var yAxis = {
+        min: 0,
+        title: {
+          text: 'Score',
+          align: 'high',
+          style: {
+            color: 'black'
+          }
+        },
+        labels: {
+          overflow: 'justify',
+          style: {
+            color: 'black'
+          }
+        }
+      };
+      var tooltip = {
+        valueSuffix: ''
+      };
+      var plotOptions = {
+        bar: {
+          dataLabels: {
+            enabled: true
+          }
+        }
+      };
+      var legend = {
+        layout: 'vertical',
+        align: 'center',
+        verticalAlign: 'bottom',
+        y: 8,
+        floating: true,
+        borderWidth: 1,
+        backgroundColor: 'rgba(255,255,255,0.4)',
+        shadow: true
+      };
+      var credits = {
+        enabled: false
+      };
+      var series = [{
+        name: period,
+        data: CharY
+      }];
+      var json = {};
+      json.chart = chart;
+      json.title = title;
+      json.subtitle = subtitle;
+      json.tooltip = tooltip;
+      json.xAxis = xAxis;
+      json.yAxis = yAxis;
+      json.series = series;
+      json.plotOptions = plotOptions;
+      json.legend = legend;
+      json.credits = credits;
+      $('#container2').highcharts(json);
+
+      var myConfig = {
+        type: 'wordcloud',
+        "background-color": "transparent",
+        options: {
+          text: Charcate.join(" "),
+        }
+      };
+      zingchart.render({
+        id: 'myChart',
+        data: myConfig,
+        width: '100%'
+      });
+      $("#btn").removeAttr("disabled");
+      $("#show").removeAttr("disabled");
+      $("#loading").remove();
+    }else {
+      {
+        alert("The job is still running, please wait and try it later.");
+        $("#show").removeAttr("disabled");
+      }
+    }
+  }
+
+    function onError(data, status) {
+      alert("Sorry, there's something wrong!");
+    }
+
+    $(document).ready(function() {
+      var session = "";
+      $("#show").click(function() {
+        $.ajax({
+          type: "GET",
+          url: "http://ec2-13-56-155-19.us-west-1.compute.amazonaws.com/result",
+          cache: false,
+          data: session,
+          beforeSend: function() {
+            $("#show").attr({
+              disabled: "disabled"
+            });
+            $("#loading").html('<img src="https://s3-us-west-1.amazonaws.com/hotnewsrecommend/loading.gif"/>');
+          },
+          success: onSuccess,
+          complete: function() {
+          },
+          error: onError
+        });
+        return false;
+      });
+      $("#btn").click(function() {
+        var st = $("#start");
+        var ed = $("#end");
+        var timeStamp = Date
+        if (st.val() == "") {
+          alert("Start Time is empty!");
+          st.focus();
+          return false;
+        } else if (ed.val() == "") {
+          alert("End Time is empty!");
+          ed.focus();
+          return false;
+        } else if (st.val() >= ed.val()) {
+          alert("Start Time should be earlier than End Time!");
+          st.focus();
+          return false;
+        } else {
+          var stTime = Date.parse($("#form1 #start").serialize()) / 1000;
+          var edTime = Date.parse($("#form1 #end").serialize()) / 1000;
+          var lim = $("#form1 #SQLlimit").serialize();
+          var numTop = $("#form1 #NumTop").serialize();
+          var formData = "start_time=" + stTime + '&' + "end_time=" + edTime + '&' + lim + '&' + numTop;
+        }
+        $.ajax({
+          type: "GET",
+          url: "http://ec2-13-56-155-19.us-west-1.compute.amazonaws.com/rake",
+          cache: false,
+          datatype: "text",
+          data: formData,
+          beforeSend: function() {
+            $("#btn").attr({
+              disabled: "disabled"
+            });
+            $("#loading").html('<img src="https://s3-us-west-1.amazonaws.com/hotnewsrecommend/loading.gif"/>');
+          },
+          success: function(backID) {
+            session = "SessionID=" + backID;
+            var user = "Please remember this session ID: " + backID;
+            alert(user);
+          },
+          complete: function() {
+            $("#show").removeAttr("disabled");
+            $("#loading").remove();
+          },
+          error: onError
+        });
+        return false;
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <h1 style="text-align:center; color:white">Hot Scientific and Technical Words in News </h1>
+    <div class="row">
+      <div class="col-md-4">
+        <h2 id="Period1" style="color:white">Time Period</h2>
+        <form id="form1">
+          <div style="color:white">Start Time:</div>
+          <input id="start" type="date" name="start_time" placeholder="e.g. mm/dd/yyyy">
+          <div style="color:white">End Time:</div>
+          <input id="end" type="date" name="end_time" placeholder="e.g. mm/dd/yyyy">
+          <div style="color:white">Search Limit (limit number of records in raw dataset):</div>
+          <input id="SQLlimit" type="text" name="LIMIT" placeholder="e.g. 50" value=50>
+          <div style="color:white">The number of results displayed:</div>
+          <input id="NumTop" type="text" name="Num" placeholder="e.g. 10" value=10>
+          <br><br>
+        </form>
+        <button id="btn" type="submit">Submit</button>
+        <br> <br>
+        <button id="show" type="submit" disabled="disabled">Show the result</button>
+        <br><br>
+        <h3 id="loading"></h3>
+      </div>
+      <div class="col-md-8" id="container2" style="text-align:center width: 640px; height: 480px; margin: 0 auto">
+        <br><br>
+      </div>
+    </div>
+    <div class="row">
+      <br>
+      <div class="col-md-offset-3 col-md-6 col-md-offset-3" id="myChart" style="text-align:center"></div>
+    </div>
+  </div>
+  <div id="hide" style="display:false"></div>
+</body>
+
+</html>
