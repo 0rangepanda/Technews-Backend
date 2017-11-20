@@ -18,7 +18,7 @@ def write_rows(rows, path):
                 pass
     return
 
-def hadoop_stream_job(url_file, SessionID):
+def hadoop_stream_job(url_file, SessionID, print_num):
     hadoop = HadoopCmd(conf.HADOOP_BIN_PATH, conf.STREAM_JAR_PATH, DEBUG=conf.DEBUG)
 
     input_path =  conf.INPUT_PATH+'/'+SessionID
@@ -40,8 +40,9 @@ def hadoop_stream_job(url_file, SessionID):
     run_cmd(['rm','-rf',"Mapper.py"])
     run_cmd(['rm','-rf',"Reducer.py"])
 
-    score = cal_score(result_path, conf.TECHWORD, topK=10)
-    print score
+    score = cal_score(result_path, conf.TECHWORD, topK=print_num)
+    if conf.DEBUG:
+         print score
     return score
 
 if __name__ == '__main__':
@@ -52,13 +53,20 @@ if __name__ == '__main__':
     start_time = int(sys.argv[2])
     end_time   = int(sys.argv[3])
     limit = int(sys.argv[4])
+    print_num = int(sys.argv[5])
     rows = hacker_news_query(start_time, end_time, limit)
     url_file_path = conf.URL_LIST_FOLDER+'/url_list_'+SessionID
     write_rows(rows, url_file_path)
     # Run hadoop stream job
-    score = hadoop_stream_job(url_file_path, SessionID)
-    # TODO: save result file
-    result_file = conf.RESULT_FOLDER + "/" + SessionID + "/result"
-    with open(result_file, 'w') as f:
-        for item in score:
-            f.write(str(item[0])+','+str(item[1])+'\n')
+    try:
+        score = hadoop_stream_job(url_file_path, SessionID, print_num)
+        # TODO: save result file
+        result_file = conf.RESULT_FOLDER + "/" + SessionID + "/result"
+        with open(result_file, 'w') as f:
+            for item in score:
+                f.write(str(item[0])+','+str(item[1])+'\n')
+                
+    except Exception as e:
+        result_file = conf.RESULT_FOLDER + "/" + SessionID + "/__FAIL__"
+        with open(result_file, 'w') as f:
+            f.write('\n')

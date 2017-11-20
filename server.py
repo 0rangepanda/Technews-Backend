@@ -43,95 +43,32 @@ def per_request_callbacks(response):
 class Test(restful.Resource):
     def get(self):
         run_cmd([conf.HADOOP_BIN_PATH, 'fs', '-ls', '/'])
-        #e.g.: http://127.0.0.1:5000/test
+        #e.g.: http://127.0.0.1:5000
         return {"Hello":"World"}
 
-api.add_resource(Test, '/test')
+api.add_resource(Test, '/')
 
-
-#------------------------ WordCount ----------------------------#
-class WordCount(restful.Resource):
-    def to_json(self, rows):
-        json = []
-        for item in rows:
-            json.append({"word":item[0], "score":item[1]})
-        return json
-
-
-    def hadoop_stream_job(self, url_file, SessionID):
-        input_path =  conf.INPUT_PATH+'/'+SessionID
-        output_path = conf.OUTPUT_PATH+'/'+SessionID
-        result_path = conf.RESULT_FOLDER+'/'+SessionID
-
-        hadoop.mkdir(input_path)
-        hadoop.delete(output_path)
-
-        hadoop.put(url_file, input_path)
-        hadoop.stream(conf.MAPPER_PATH,conf.REDUCER_PATH,input_path,output_path)
-        run_cmd(['rm','-rf',result_path])
-        run_cmd(['mkdir',result_path])
-        hadoop.get(output_path+'/*', result_path)
-
-        # NOTE: clean up
-        hadoop.delete(input_path)
-        hadoop.delete(output_path)
-        run_cmd(['rm','-rf',"Mapper.py"])
-        run_cmd(['rm','-rf',"Reducer.py"])
-
-        return cal_score(result_path+'/part-00000', conf.TECHWORD, topK=10)
-
-    def get(self):
-        '''
-            RESTful API
-            e.g.: http://127.0.0.1:5000/wordcount?start_time=1351623092&end_time=1468446826&LIMIT=10
-        '''
-        def write_rows(rows, path):
-            with open(path, 'a') as f:
-                for item in rows:
-                    try:
-                        f.write(item[1]+'\n')
-                    except Exception as e:
-                        pass
-            return
-
-        SessionID  = str(uuid.uuid1())
-        start_time = int(request.args.get('start_time'))
-        end_time   = int(request.args.get('end_time'))
-        limit = 0
-        try:
-            limit  = int(request.args.get('LIMIT'))
-        except Exception as e:
-            pass
-
-        #TODO: validate timestamp
-
-        #bigquery
-        rows = hacker_news_query(start_time, end_time, limit)
-        url_file_path = conf.URL_LIST_FOLDER+'/url_list_'+SessionID
-        write_rows(rows, url_file_path)
-
-        score = self.hadoop_stream_job(url_file_path, SessionID)
-
-        return self.to_json(score)
-        # TODO: return the SessionID, store the result and get result by SessionID
-
-api.add_resource(WordCount, '/wordcount')
 
 #------------------------ Rake -------------------------------#
 @app.route('/rake', methods=['GET'])
 def Rake():
     @after_this_request
-    def delete_username_cookie(response):
-        SessionID = response.get_data()
-        start_time = request.args.get('start_time')
-        end_time   = request.args.get('end_time')
-        limit = '0'
+    def run_hadoop_job(response):
         try:
-            limit  = request.args.get('LIMIT')
+            SessionID  = response.get_data()
+            start_time = request.args.get('start_time')
+            end_time   = request.args.get('end_time')
+            print_num  = request.args.get('Num')
+            limit = '0'
+            try:
+                limit  = request.args.get('LIMIT')
+            except Exception as e:
+                pass
         except Exception as e:
-            pass
+            raise
+
         # Run hadoop stream job UNBLOCK!
-        subprocess.Popen(['python','hadoop_stream_job.py',SessionID, start_time, end_time, limit])
+        subprocess.Popen(['python','hadoop_stream_job.py',SessionID, start_time, end_time, limit, print_num])
         return response
 
     SessionID = str(uuid.uuid1())
@@ -144,28 +81,39 @@ class GetResult(restful.Resource):
         # TODO: read file from path
         result_file = conf.RESULT_FOLDER + "/" + SessionID + "/result"
         ret = []
-        with open(result_file, 'r') as f:
-            for line in f:
-                word,score = line.rstrip().split(',', 1)
-                ret.append([word,score])
-        return ret
+
+        try:
+            with open(result_file, 'r') as f:
+                for line in f:
+                    word,score = line.rstrip().split(',', 1)
+                    ret.append({"word":word, "score": float(score)})
+            return jsonify(ret)
+
+        except Exception as e:
+            try:
+                result_file = conf.RESULT_FOLDER + "/" + SessionID + "/__FAIL__"
+                if result_file.is_file():
+                    return {"Status" : "Failed"}
+            except Exception as e:
+                return {"Status" : "Uncompleted"}
+
 
 api.add_resource(GetResult, '/result')
 
 
-#------------------------ Clean Up ----------------------------------#
+#------------------------ Clean Up -------------------------------------#
 class CleanUp(restful.Resource):
     def get(self):
         #e.g.: http://127.0.0.1:5000/test
         run_cmd(['sudo', 'rm', '-rf', conf.INPUT_PATH+ '/*'])
         run_cmd(['sudo', 'rm', '-rf', conf.OUTPUT_PATH+'/*'])
-        return {"Hello":"World"}
+        return {"Clean":"Up"}
 
 api.add_resource(CleanUp, '/cleanup')
 
 
 
-#------------------------ Main -------------------------------#
+#------------------------------ Main ----------------------------------#
 if __name__ == '__main__':
     if conf.SETUP:
         setup_hadoop(hadoop)
