@@ -93,7 +93,7 @@ class CxExtractor:
         except Exception as e:
             return None
 
-        if response.status_code == 200:
+        if response.status_code == 200 and response.encoding:
             coding = response.encoding
             page = response.content
             return page.decode(coding)
@@ -397,7 +397,7 @@ def main(separator=','):
             keywords = rake_object.run(content)
             for keyword,score in keywords[:20]:
                 try:
-                    print '%s%s%d' % (keyword, separator, score)
+                    print ('%s%s%d' % (keyword, separator, score))
                 except Exception as e:
                     pass
 
