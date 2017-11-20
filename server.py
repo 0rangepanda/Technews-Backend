@@ -88,6 +88,8 @@ class GetResult(restful.Resource):
             with open(result_file, 'r') as f:
                 for line in f:
                     word,score = line.rstrip().split(',', 1)
+                    # replace space by _
+                    word = word.replace(' ', '_')
                     ret.append({"word":word, "score": float(score)})
             return jsonify(ret)
 
